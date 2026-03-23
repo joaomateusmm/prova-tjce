@@ -1,4 +1,10 @@
-import { ChevronLeft, ChevronRight, SkipForward, CheckCheck } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  SkipForward,
+  CheckCheck,
+  Zap,
+} from "lucide-react";
 import { useCampaign } from "@/hooks/useCampaign";
 import { QuestionCard } from "@/components/QuestionCard";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -25,6 +31,7 @@ const Index = () => {
     resetCampaign,
     setSubjectFilter,
     getResults,
+    autoCompleteForTesting,
   } = useCampaign();
 
   // Resultado
@@ -36,6 +43,7 @@ const Index = () => {
           correct={results.correct}
           wrong={results.wrong}
           total={results.total}
+          details={results.details}
           onRestart={resetCampaign}
         />
       </div>
@@ -53,9 +61,22 @@ const Index = () => {
             <h1 className="text-base font-bold tracking-tight text-foreground">
               TJ/CE — Técnico Administrativo
             </h1>
-            <span className="rounded-md bg-secondary px-2 py-1 text-xs font-semibold text-secondary-foreground">
-              Campanha
-            </span>
+            <div className="flex items-center gap-2">
+              {/* NOVO BOTÃO DE TESTE ADICIONADO AQUI */}
+              {!allAnswered && (
+                <button
+                  onClick={autoCompleteForTesting}
+                  title="Auto Completar para Testes"
+                  className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-500"
+                >
+                  <Zap className="h-3 w-3" />
+                  Auto Teste
+                </button>
+              )}
+              <span className="rounded-md bg-secondary px-2 py-1 text-xs font-semibold text-secondary-foreground">
+                Campanha
+              </span>
+            </div>
           </div>
           <ProgressBar
             answered={answeredCount}
@@ -66,14 +87,16 @@ const Index = () => {
         </div>
       </header>
 
+      {/* RESTANTE DO CÓDIGO INALTERADO */}
       <div className="mx-auto max-w-5xl px-4 py-6">
-        {/* Subject filter */}
         <div className="mb-6">
-          <SubjectFilter current={state.subjectFilter} onSelect={setSubjectFilter} />
+          <SubjectFilter
+            current={state.subjectFilter}
+            onSelect={setSubjectFilter}
+          />
         </div>
 
         <div className="flex flex-col gap-6 lg:flex-row">
-          {/* Questão principal */}
           <div className="flex-1">
             {currentQuestion ? (
               <QuestionCard
@@ -90,7 +113,6 @@ const Index = () => {
               </p>
             )}
 
-            {/* Nav buttons */}
             <div className="mt-4 flex items-center justify-between gap-3">
               <button
                 onClick={goPrev}
@@ -119,7 +141,6 @@ const Index = () => {
               </button>
             </div>
 
-            {/* Finalizar */}
             <div className="mt-6">
               <button
                 onClick={finishCampaign}
@@ -140,7 +161,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Sidebar — grid */}
           <div className="w-full lg:w-64 shrink-0">
             <div className="lg:sticky lg:top-28">
               <QuestionGrid

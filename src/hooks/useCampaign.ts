@@ -43,17 +43,20 @@ export function useCampaign() {
 
   const totalCount = filteredQuestions.length;
   const answeredCount = filteredQuestions.filter(
-    (q) => state.statuses[q.id] === "answered"
+    (q) => state.statuses[q.id] === "answered",
   ).length;
   const skippedCount = filteredQuestions.filter(
-    (q) => state.statuses[q.id] === "skipped"
+    (q) => state.statuses[q.id] === "skipped",
   ).length;
   const remainingCount = totalCount - answeredCount;
 
   const allAnswered = answeredCount === totalCount && totalCount > 0;
 
   const goTo = useCallback((index: number) => {
-    setState((s) => ({ ...s, currentIndex: Math.max(0, Math.min(index, s.questions.length - 1)) }));
+    setState((s) => ({
+      ...s,
+      currentIndex: Math.max(0, Math.min(index, s.questions.length - 1)),
+    }));
   }, []);
 
   const goNext = useCallback(() => {
@@ -61,7 +64,10 @@ export function useCampaign() {
       const filtered = s.subjectFilter
         ? s.questions.filter((q) => q.subject === s.subjectFilter)
         : s.questions;
-      return { ...s, currentIndex: Math.min(s.currentIndex + 1, filtered.length - 1) };
+      return {
+        ...s,
+        currentIndex: Math.min(s.currentIndex + 1, filtered.length - 1),
+      };
     });
   }, []);
 
@@ -71,9 +77,11 @@ export function useCampaign() {
 
   const skipQuestion = useCallback(() => {
     setState((s) => {
-      const q = (s.subjectFilter
-        ? s.questions.filter((q) => q.subject === s.subjectFilter)
-        : s.questions)[s.currentIndex];
+      const q = (
+        s.subjectFilter
+          ? s.questions.filter((q) => q.subject === s.subjectFilter)
+          : s.questions
+      )[s.currentIndex];
       if (!q || s.statuses[q.id] === "answered") return s;
       const filtered = s.subjectFilter
         ? s.questions.filter((q) => q.subject === s.subjectFilter)
@@ -117,7 +125,11 @@ export function useCampaign() {
     const allQs = state.questions;
     let correct = 0;
     let wrong = 0;
-    const details: { question: ShuffledQuestion; userAnswer: string; isCorrect: boolean }[] = [];
+    const details: {
+      question: ShuffledQuestion;
+      userAnswer: string;
+      isCorrect: boolean;
+    }[] = [];
 
     allQs.forEach((q) => {
       const userAnswer = state.answers[q.id];
@@ -131,6 +143,28 @@ export function useCampaign() {
 
     return { correct, wrong, total: allQs.length, details };
   }, [state.questions, state.answers]);
+
+  // ---> NOVA FUNÇÃO PARA TESTES ADICIONADA AQUI <---
+  const autoCompleteForTesting = useCallback(() => {
+    setState((s) => {
+      const newAnswers = { ...s.answers };
+      const newStatuses = { ...s.statuses };
+
+      s.questions.forEach((q) => {
+        // Se a questão não tiver resposta ainda, marcamos a primeira opção
+        if (!newAnswers[q.id]) {
+          newAnswers[q.id] = q.shuffledOptions[0];
+          newStatuses[q.id] = "answered";
+        }
+      });
+
+      return {
+        ...s,
+        answers: newAnswers,
+        statuses: newStatuses,
+      };
+    });
+  }, []);
 
   return {
     state,
@@ -150,5 +184,6 @@ export function useCampaign() {
     resetCampaign,
     setSubjectFilter,
     getResults,
+    autoCompleteForTesting, // ---> FUNÇÃO EXPORTADA AQUI <---
   };
 }
